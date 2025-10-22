@@ -36,7 +36,7 @@ IDENTIFICATION DIVISION.
            COPY RESOURCE '/v/cps/lib/icon/help.jpg'.
 
         01 PRT-HEADER.
-           03 PRT-COMPNAME      PIC X(174).
+           03 PRT-COMPNAME      PIC X(50).
            03 FIL               PIC X(07) VALUE 'DATE :'.
            03 PRT-SYS-DMY       PIC 99/99/9999.
            03 FIL               PIC X(02).
@@ -44,7 +44,7 @@ IDENTIFICATION DIVISION.
            03 PRT-PAGE-COUNT    PIC 9(04).
 
         01 PRT-HEADER2.
-           03 FIL               PIC X(174) VALUE
+           03 FIL               PIC X(50) VALUE
               'REPORT TITLE : STUDENT PROFILE DETAIL'.
            03 FIL               PIC X(07) VALUE 'TIME :'.
            03 PRT-START-HHMM    PIC X(07).
@@ -346,3 +346,4 @@ IDENTIFICATION DIVISION.
            COPY '/v/cps/lib/std/errmsg.prd'.
 
       * End of program
+
