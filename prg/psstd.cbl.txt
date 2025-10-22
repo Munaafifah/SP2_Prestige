@@ -102,57 +102,37 @@
            READ STD-FILE NEXT END
                 MOVE 'N' TO S-RUN GO TO 0199-END.
 
-      * Check if past end range
            IF STD-KEY > LINK-E-STD-KEY
-              MOVE 'N' TO S-RUN
               GO TO 0199-END.
 
            DISPLAY PROCESS-SCR.
 
-      * Filter by Gender (00=ALL, 10=Male only, 01=Female only, 11=ALL)
-           IF LINK-GENDER = 00
+           IF (STD-GENDER = 'M' AND LINK-GENDER2(1) = 1) OR
+              (STD-GENDER = 'F' AND LINK-GENDER2(2) = 1)
               NEXT SENTENCE
            ELSE
-              IF STD-GENDER = 'M'
-                 IF LINK-GENDER2(1) NOT = 1
-                    GO TO 0100-MAIN
-                 END-IF
-              ELSE
-                 IF STD-GENDER = 'F'
-                    IF LINK-GENDER2(2) NOT = 1
-                       GO TO 0100-MAIN
-                    END-IF
-                 ELSE
-                    GO TO 0100-MAIN
-                 END-IF
-              END-IF
-           END-IF.
+              GO TO 0199-END.
 
-      * Calculate and filter by Age
            INITIALIZE WS-AGE.
            CALL   '/z/y25b31/sp2/lib/std/f-gtage' USING
                   STD-DOB-DMY, WS-AGE.
            CANCEL '/z/y25b31/sp2/lib/std/f-gtage'.
+           IF WS-AGE < LINK-S-AGE OR
+              WS-AGE > LINK-E-AGE
+              GO TO 0199-END.
 
-           IF WS-AGE < LINK-S-AGE OR WS-AGE > LINK-E-AGE
-              GO TO 0100-MAIN.
-
-      * Filter by Country
            IF STD-CY-KEY < LINK-S-CY-KEY OR
               STD-CY-KEY > LINK-E-CY-KEY
-              GO TO 0100-MAIN.
+              GO TO 0199-END.
 
-      * Filter by Race
            IF STD-RC-KEY < LINK-S-RC-KEY OR
               STD-RC-KEY > LINK-E-RC-KEY
-              GO TO 0100-MAIN.
+              GO TO 0199-END.
 
-      * Filter by Religion
            IF STD-RG-KEY < LINK-S-RG-KEY OR
               STD-RG-KEY > LINK-E-RG-KEY
-              GO TO 0100-MAIN.
+              GO TO 0199-END.
 
-      * All filters passed - Write to temporary file
            INITIALIZE STD-T-REC.
            MOVE STD-KEY     TO STD-T-KEY.
            MOVE STD-NAME    TO STD-T-NAME.
