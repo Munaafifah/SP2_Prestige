@@ -1,0 +1,414 @@
+IDENTIFICATION DIVISION.
+        PROGRAM-ID. PTSRR.
+
+      * PRINT STATISTIC REPORT
+      * AUTHOR   DATE   TYPE   A/C   NOTES
+      * MUNA   13/10/25  -     PA     SP2
+
+       ENVIRONMENT DIVISION.
+        INPUT-OUTPUT SECTION.
+         FILE-CONTROL.
+           COPY '/z/y25b31/sp2/lib/fd/fcstd'.
+           COPY '/z/y25b31/sp2/lib/fd/fccy'.
+           COPY '/z/y25b31/sp2/lib/fd/fcrc'.
+           COPY '/z/y25b31/sp2/lib/fd/fcrg'.
+           COPY '/z/y25b31/sp2/lib/fd/fcssr.t'.
+           COPY '/v/cps/lib/std/fcprint'.
+       DATA DIVISION.
+        FILE SECTION.
+           COPY '/z/y25b31/sp2/lib/fd/fdstd'.
+           COPY '/z/y25b31/sp2/lib/fd/fdcy'.
+           COPY '/z/y25b31/sp2/lib/fd/fdrc'.
+           COPY '/z/y25b31/sp2/lib/fd/fdrg'.
+           COPY '/z/y25b31/sp2/lib/fd/fdssr.t'.
+           COPY '/v/cps/lib/std/fdprint'.
+
+        WORKING-STORAGE SECTION.
+           COPY '/z/y25b31/sp2/lib/fd/dbstd'.
+           COPY '/z/y25b31/sp2/lib/fd/dbcy'.
+           COPY '/z/y25b31/sp2/lib/fd/dbrc'.
+           COPY '/z/y25b31/sp2/lib/fd/dbrg'.
+           COPY '/z/y25b31/sp2/lib/fd/dbssr.t'.
+           COPY '/v/cps/lib/std/stdvar.def'.
+           COPY '/v/cps/lib/std/fkey.def'.
+           COPY '/v/cps/lib/std/dbprint'.
+
+        01 PRT-HEADER.
+           03 PRT-COMPNAME        PIC X(174).
+           03 FIL                 PIC X(07) VALUE 'DATE :'.
+           03 PRT-SYS-DMY         PIC 99/99/9999.
+           03 FIL                 PIC X(02).
+           03 FIL                 PIC X(07) VALUE 'PAGE :'.
+           03 PRT-PAGE-COUNT      PIC 9(04).
+
+        01 PRT-HEADER2.
+           03 FIL                 PIC X(174) VALUE
+              'REPORT TITLE : STATISTIC REPORT'.
+           03 FIL                 PIC X(07) VALUE 'TIME :'.
+           03 PRT-START-HHMM      PIC X(07).
+
+        01 PRT-HEADER3.
+           03 FIL                 PIC X(204) VALUE
+             ' NO   TYPE      NAME                           MALE   FEMA
+      -      'LE AGE    AGE    AGE    AGE    AGE    HEIGHT    HEIGHT
+      -      'HEIGHT    HEIGHT    WEIGHT    WEIGHT    WEIGHT    ERRORS '
+      -      .
+
+        01 PRT-HEADER4.
+           03 FIL                 PIC X(204) VALUE
+      -      '
+      -      '   20-29  30-39  40-49  50-59  60-65  110-120cm 121-130cm
+      -      '131-140cm 141-150cm 50-59kg   60-69kg   70-75kg          '
+      -      .
+
+        01 PRT-LINE.
+           03 FIL                 PIC X(204) VALUE
+      -      ' ---- --------- ------------------------------ ------ ----
+      -      '-- ------ ------ ------ ------ ------ --------- ---------
+      -      '--------- --------- --------- --------- --------- -------'
+      -      .
+
+        01 PRT-NEXT-PAGE.
+           03 FIL                 PIC X(16) VALUE
+              '* CONTINUE PAGE'.
+           03 PRT-PAGE-COUNT2     PIC 9(04).
+           03 FIL                 PIC X(02) VALUE ' *'.
+
+        01 WS-MISC.
+           03 WS-PREV-KEY         PIC X(01).
+
+        01 WS-CALC.
+           03 FIL                 PIC X(16).
+           03 WS-SUBTOTAL         PIC X(30) VALUE 'Subtotal'.
+           03 FIL                 PIC X(01).
+           03 WS-MALE-CALC        PIC 9(06).
+           03 FIL                 PIC X(01).
+           03 WS-FEMALE-CALC      PIC 9(06).
+           03 FIL                 PIC X(01).
+           03 WS-AGE1-CALC        PIC 9(06).
+           03 FIL                 PIC X(01).
+           03 WS-AGE2-CALC        PIC 9(06).
+           03 FIL                 PIC X(01).
+           03 WS-AGE3-CALC        PIC 9(06).
+           03 FIL                 PIC X(01).
+           03 WS-AGE4-CALC        PIC 9(06).
+           03 FIL                 PIC X(01).
+           03 WS-AGE5-CALC        PIC 9(06).
+           03 FIL                 PIC X(04).
+           03 WS-HEIGHT1-CALC     PIC 9(06).
+           03 FIL                 PIC X(04).
+           03 WS-HEIGHT2-CALC     PIC 9(06).
+           03 FIL                 PIC X(04).
+           03 WS-HEIGHT3-CALC     PIC 9(06).
+           03 FIL                 PIC X(04).
+           03 WS-HEIGHT4-CALC     PIC 9(06).
+           03 FIL                 PIC X(04).
+           03 WS-WEIGHT1-CALC     PIC 9(06).
+           03 FIL                 PIC X(04).
+           03 WS-WEIGHT2-CALC     PIC 9(06).
+           03 FIL                 PIC X(04).
+           03 WS-WEIGHT3-CALC     PIC 9(06).
+           03 FIL                 PIC X(02).
+           03 WS-ERRORS-CALC      PIC 9(06).
+
+        01 PRT-CALC2.
+           03 FIL                 PIC X(01).
+           03 PRT-NO              PIC X(04).
+           03 FIL                 PIC X(01).
+           03 PRT-TYPE-CALC2      PIC X(09).
+           03 FIL                 PIC X(01).
+           03 PRT-NAME-CALC2      PIC X(30).
+           03 FIL                 PIC X(01).
+           03 PRT-MALE-CALC2      PIC ZZZZZ9.
+           03 FIL                 PIC X(01).
+           03 PRT-FEMALE-CALC2    PIC ZZZZZ9.
+           03 FIL                 PIC X(01).
+           03 PRT-AGE1-CALC2      PIC ZZZZZ9.
+           03 FIL                 PIC X(01).
+           03 PRT-AGE2-CALC2      PIC ZZZZZ9.
+           03 FIL                 PIC X(01).
+           03 PRT-AGE3-CALC2      PIC ZZZZZ9.
+           03 FIL                 PIC X(01).
+           03 PRT-AGE4-CALC2      PIC ZZZZZ9.
+           03 FIL                 PIC X(01).
+           03 PRT-AGE5-CALC2      PIC ZZZZZ9.
+           03 FIL                 PIC X(04).
+           03 PRT-HEIGHT1-CALC2   PIC ZZZZZ9.
+           03 FIL                 PIC X(04).
+           03 PRT-HEIGHT2-CALC2   PIC ZZZZZ9.
+           03 FIL                 PIC X(04).
+           03 PRT-HEIGHT3-CALC2   PIC ZZZZZ9.
+           03 FIL                 PIC X(04).
+           03 PRT-HEIGHT4-CALC2   PIC ZZZZZ9.
+           03 FIL                 PIC X(04).
+           03 PRT-WEIGHT1-CALC2   PIC ZZZZZ9.
+           03 FIL                 PIC X(04).
+           03 PRT-WEIGHT2-CALC2   PIC ZZZZZ9.
+           03 FIL                 PIC X(04).
+           03 PRT-WEIGHT3-CALC2   PIC ZZZZZ9.
+           03 FIL                 PIC X(02).
+           03 PRT-ERRORS-CALC2    PIC ZZZZZ9.
+
+        01 PRT-TOTAL.
+           03 FIL                 PIC X(01).
+           03 PRT-REC-COUNT       PIC ZZZ9.
+           03 FIL                 PIC X(01).
+           03 PRT-TYPE            PIC X(09).
+           03 FIL                 PIC X(01).
+           03 PRT-NAME            PIC X(30).
+           03 FIL                 PIC X(01).
+           03 PRT-MALE            PIC ZZZZZ9.
+           03 FIL                 PIC X(01).
+           03 PRT-FEMALE          PIC ZZZZZ9.
+           03 FIL                 PIC X(01).
+           03 PRT-AGE1            PIC ZZZZZ9.
+           03 FIL                 PIC X(01).
+           03 PRT-AGE2            PIC ZZZZZ9.
+           03 FIL                 PIC X(01).
+           03 PRT-AGE3            PIC ZZZZZ9.
+           03 FIL                 PIC X(01).
+           03 PRT-AGE4            PIC ZZZZZ9.
+           03 FIL                 PIC X(01).
+           03 PRT-AGE5            PIC ZZZZZ9.
+           03 FIL                 PIC X(04).
+           03 PRT-HEIGHT1         PIC ZZZZZ9.
+           03 FIL                 PIC X(04).
+           03 PRT-HEIGHT2         PIC ZZZZZ9.
+           03 FIL                 PIC X(04).
+           03 PRT-HEIGHT3         PIC ZZZZZ9.
+           03 FIL                 PIC X(04).
+           03 PRT-HEIGHT4         PIC ZZZZZ9.
+           03 FIL                 PIC X(04).
+           03 PRT-WEIGHT1         PIC ZZZZZ9.
+           03 FIL                 PIC X(04).
+           03 PRT-WEIGHT2         PIC ZZZZZ9.
+           03 FIL                 PIC X(04).
+           03 PRT-WEIGHT3         PIC ZZZZZ9.
+           03 FIL                 PIC X(02).
+           03 PRT-ERRORS          PIC ZZZZZ9.
+
+        01 PRT-END.
+           03 FIL                 PIC X(26) VALUE
+              '* END OF REPORT * TIME :'.
+           03 PRT-END-HHMM        PIC X(07).
+
+        LINKAGE SECTION.
+        01 LINK-PROG-KEY          PIC X(30).
+        01 LINK-DATA-ID           PIC X(08).
+
+      ******************************************************************
+       PROCEDURE DIVISION USING LINK-PROG-KEY, LINK-DATA-ID.
+
+        DECLARATIVES.
+
+           COPY '/z/y25b31/sp2/lib/fd/dcstd'.
+           COPY '/z/y25b31/sp2/lib/fd/dccy'.
+           COPY '/z/y25b31/sp2/lib/fd/dcrc'.
+           COPY '/z/y25b31/sp2/lib/fd/dcrg'.
+           COPY '/z/y25b31/sp2/lib/fd/dcssr.t'.
+           COPY '/v/cps/lib/std/dcprint'.
+
+        END DECLARATIVES.
+
+      *****************************************************************
+        BEGIN.
+
+           MOVE 'N' TO S-RUN.
+           MOVE LINK-DATA-ID TO SSR-T-DATA-ID.
+           OPEN INPUT SSR-T-FILE, CY-FILE, RC-FILE, RG-FILE.
+
+           COPY '/v/cps/lib/std/gtcoid.prd'.
+           MOVE 'Print Statistic Report' TO S-WINDOW-TITLE.
+           COPY '/v/cps/lib/std/ptwin.prd'.
+
+           MOVE 'Y' TO S-RUN.
+           PERFORM 0100-MAIN THRU 0199-END.
+
+        TERMINATION.
+           CLOSE WINDOW S-WINDOW.
+           CLOSE SSR-T-FILE, CY-FILE, RC-FILE, RG-FILE.
+           EXIT PROGRAM.
+           STOP RUN.
+
+      *****************************************************************
+        0100-MAIN.
+
+           MOVE 204 TO S-PRT-COL.
+           COPY '/v/cps/lib/std/print.prd'.
+           IF PRINT-DATANAME = SPACE
+              GO TO 0199-END.
+
+           OPEN OUTPUT PRINT-FILE.
+           IF S-STATUS-CHECK = 'Y'
+              GO TO 0199-END.
+
+           INITIALIZE SSR-T-REC, WS-PREV-KEY.
+           MOVE LOW-VALUE TO SSR-T-KEY.
+           MOVE 'Y' TO S-RUN2.
+           START SSR-T-FILE KEY >= SSR-T-KEY INVALID
+                 MOVE 'N' TO S-RUN2.
+
+           COPY '/v/cps/lib/std/s-thread.prd'.
+
+           WRITE PRINT-REC FROM S-INIT-STRING AFTER 0.
+           MOVE 'Y' TO S-FIRST-PRINT.
+           PERFORM PRT-CONTROL THRU PRT-CONTROL-END.
+
+           MOVE 1 TO WS-PREV-KEY.
+           INITIALIZE PRT-CALC2.
+           MOVE 'Subtotal' TO WS-SUBTOTAL.
+           PERFORM 0200-PRT THRU 0299-PRT-END
+                   UNTIL S-RUN2 = 'N' OR THREAD-RETURN = 99.
+
+           IF THREAD-RETURN NOT = 99
+              PERFORM PRT-SUBTOTAL THRU PRT-SUBTOTAL-END
+              PERFORM PRT-ENDING THRU PRT-ENDING-END.
+
+           CLOSE PRINT-FILE.
+
+           COPY '/v/cps/lib/std/e-thread.prd'.
+
+        0199-END. EXIT.
+
+      *****************************************************************
+        0200-PRT.
+
+           READ SSR-T-FILE NEXT END
+                MOVE 'N' TO S-RUN2 GO TO 0299-PRT-END.
+
+           IF (WS-PREV-KEY NOT = SPACES) AND
+              (WS-PREV-KEY NOT = SSR-T-KEY1)
+              INITIALIZE S-REC-COUNT
+              PERFORM PRT-SUBTOTAL THRU PRT-SUBTOTAL-END.
+
+           ADD 1 TO S-REC-COUNT.
+           MOVE S-REC-COUNT TO PRT-REC-COUNT.
+
+           EVALUATE SSR-T-KEY1
+            WHEN 1 MOVE 'Country' TO PRT-TYPE
+            MOVE SSR-T-KEY2 TO CY-KEY
+            READ CY-FILE
+            MOVE CY-NAME TO PRT-NAME
+
+            WHEN 2 MOVE 'Race' TO PRT-TYPE
+            MOVE SSR-T-KEY2 TO RC-KEY
+            READ RC-FILE
+            MOVE RC-NAME TO PRT-NAME
+
+            WHEN 3 MOVE 'Religion' TO PRT-TYPE
+            MOVE SSR-T-KEY2 TO RG-KEY
+            READ RG-FILE
+            MOVE RG-NAME TO PRT-NAME
+
+           END-EVALUATE.
+
+           MOVE SSR-T-GENDER (1) TO PRT-MALE.
+           MOVE SSR-T-GENDER (2) TO PRT-FEMALE.
+           MOVE SSR-T-AGE    (1) TO PRT-AGE1.
+           MOVE SSR-T-AGE    (2) TO PRT-AGE2.
+           MOVE SSR-T-AGE    (3) TO PRT-AGE3.
+           MOVE SSR-T-AGE    (4) TO PRT-AGE4.
+           MOVE SSR-T-AGE    (5) TO PRT-AGE5.
+           MOVE SSR-T-HEIGHT (1) TO PRT-HEIGHT1.
+           MOVE SSR-T-HEIGHT (2) TO PRT-HEIGHT2.
+           MOVE SSR-T-HEIGHT (3) TO PRT-HEIGHT3.
+           MOVE SSR-T-HEIGHT (4) TO PRT-HEIGHT4.
+           MOVE SSR-T-WEIGHT (1) TO PRT-WEIGHT1.
+           MOVE SSR-T-WEIGHT (2) TO PRT-WEIGHT2.
+           MOVE SSR-T-WEIGHT (3) TO PRT-WEIGHT3.
+           MOVE SSR-T-ERRORS     TO PRT-ERRORS.
+
+           PERFORM CALC-RTN THRU CALC-END.
+           PERFORM PRT-CONTROL THRU PRT-CONTROL-END.
+           WRITE PRINT-REC FROM PRT-TOTAL.
+           MOVE SSR-T-KEY1 TO WS-PREV-KEY.
+
+        0299-PRT-END. EXIT.
+
+      ******************************************************************
+        CALC-RTN.
+           ADD SSR-T-GENDER (1) TO WS-MALE-CALC.
+           ADD SSR-T-GENDER (2) TO WS-FEMALE-CALC.
+           ADD SSR-T-AGE    (1) TO WS-AGE1-CALC.
+           ADD SSR-T-AGE    (2) TO WS-AGE2-CALC.
+           ADD SSR-T-AGE    (3) TO WS-AGE3-CALC.
+           ADD SSR-T-AGE    (4) TO WS-AGE4-CALC.
+           ADD SSR-T-AGE    (5) TO WS-AGE5-CALC.
+           ADD SSR-T-HEIGHT (1) TO WS-HEIGHT1-CALC.
+           ADD SSR-T-HEIGHT (2) TO WS-HEIGHT2-CALC.
+           ADD SSR-T-HEIGHT (3) TO WS-HEIGHT3-CALC.
+           ADD SSR-T-HEIGHT (4) TO WS-HEIGHT4-CALC.
+           ADD SSR-T-WEIGHT (1) TO WS-WEIGHT1-CALC.
+           ADD SSR-T-WEIGHT (2) TO WS-WEIGHT2-CALC.
+           ADD SSR-T-WEIGHT (3) TO WS-WEIGHT3-CALC.
+           ADD SSR-T-ERRORS     TO WS-ERRORS-CALC.
+        CALC-END. EXIT.
+
+      ******************************************************************
+        PRT-SUBTOTAL.
+
+           MOVE 'Subtotal'      TO PRT-NAME-CALC2.
+           MOVE WS-MALE-CALC    TO PRT-MALE-CALC2.
+           MOVE WS-FEMALE-CALC  TO PRT-FEMALE-CALC2.
+           MOVE WS-AGE1-CALC    TO PRT-AGE1-CALC2.
+           MOVE WS-AGE2-CALC    TO PRT-AGE2-CALC2.
+           MOVE WS-AGE3-CALC    TO PRT-AGE3-CALC2.
+           MOVE WS-AGE4-CALC    TO PRT-AGE4-CALC2.
+           MOVE WS-AGE5-CALC    TO PRT-AGE5-CALC2.
+           MOVE WS-HEIGHT1-CALC TO PRT-HEIGHT1-CALC2.
+           MOVE WS-HEIGHT2-CALC TO PRT-HEIGHT2-CALC2.
+           MOVE WS-HEIGHT3-CALC TO PRT-HEIGHT3-CALC2.
+           MOVE WS-HEIGHT4-CALC TO PRT-HEIGHT4-CALC2.
+           MOVE WS-WEIGHT1-CALC TO PRT-WEIGHT1-CALC2.
+           MOVE WS-WEIGHT2-CALC TO PRT-WEIGHT2-CALC2.
+           MOVE WS-WEIGHT3-CALC TO PRT-WEIGHT3-CALC2.
+           MOVE WS-ERRORS-CALC  TO PRT-ERRORS-CALC2.
+
+           WRITE PRINT-REC FROM PRT-CALC2.
+           WRITE PRINT-REC FROM SPACE.
+           INITIALIZE WS-CALC.
+
+        PRT-SUBTOTAL-END. EXIT.
+
+      ******************************************************************
+        PRT-CONTROL.
+
+           IF S-FIRST-PRINT = 'Y' OR LINAGE-COUNTER > 58
+              IF S-FIRST-PRINT = 'Y'
+                 MOVE 'N' TO S-FIRST-PRINT
+                 CALL   '/v/cps/lib/std/f-dmyhm' USING
+                        PRT-SYS-DMY, PRT-START-HHMM
+                 CANCEL '/v/cps/lib/std/f-dmyhm'
+                 MOVE 'Prestige Atlantic' TO PRT-COMPNAME
+                 MOVE 0                   TO S-REC-COUNT
+                 MOVE 1                   TO S-PAGE-COUNT
+              ELSE
+                 ADD 1                    TO S-PAGE-COUNT
+                 MOVE S-PAGE-COUNT        TO PRT-PAGE-COUNT2
+                 WRITE PRINT-REC FROM PRT-NEXT-PAGE AFTER 2
+                 WRITE PRINT-REC FROM SPACE AFTER PAGE
+           END-IF
+           MOVE S-PAGE-COUNT TO PRT-PAGE-COUNT
+           WRITE PRINT-REC FROM PRT-HEADER
+           WRITE PRINT-REC FROM PRT-HEADER2
+           WRITE PRINT-REC FROM PRT-HEADER3 AFTER 2
+           WRITE PRINT-REC FROM PRT-HEADER4
+           WRITE PRINT-REC FROM PRT-LINE.
+
+        PRT-CONTROL-END. EXIT.
+
+      ******************************************************************
+        PRT-ENDING.
+
+           CALL   '/v/cps/lib/std/f-dmyhm' USING
+                  PRT-SYS-DMY, PRT-END-HHMM
+           CANCEL '/v/cps/lib/std/f-dmyhm'
+           COMPUTE S-LINE = 62 - LINAGE-COUNTER.
+           WRITE PRINT-REC FROM PRT-END AFTER S-LINE.
+
+        PRT-ENDING-END. EXIT.
+
+      ******************************************************************
+           COPY '/v/cps/lib/std/errmsg.prd'.
+
+      * END OF PROGRAM

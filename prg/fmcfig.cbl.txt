@@ -1,0 +1,146 @@
+IDENTIFICATION DIVISION.
+        PROGRAM-ID. FMCFIG.
+
+      * MAINTAIN CONFIG FILE
+      * AUTHOR      DATE     TYPE     A/C     NOTES
+      * MUNA     13/10/2025   -        PA      SP2
+
+       ENVIRONMENT DIVISION.
+        INPUT-OUTPUT SECTION.
+         FILE-CONTROL.
+           COPY '/z/y25b31/sp2/lib/fd/fccfig'.
+
+       DATA DIVISION.
+        FILE SECTION.
+           COPY '/z/y25b31/sp2/lib/fd/fdcfig'.
+
+        WORKING-STORAGE SECTION.
+           COPY '/z/y25b31/sp2/lib/fd/dbcfig'.
+           COPY '/v/cps/lib/std/stdvar.def'.
+           COPY '/v/cps/lib/std/fkey.def'.
+
+        LINKAGE SECTION.
+        01 LINK-PROG-KEY PIC X(30).
+
+        SCREEN SECTION.
+        01 SELECT-SCR.
+           03 LABEL LINE 02 COL 04 'Syetem Parameters:'.
+           03 LABEL LINE 03 COL 04 'Age Allowable:'.
+           03 ENTRY-FIELD 3-D ID 101 COL 20 PIC X(02) USING
+              CFIG-AGE-MIN AUTO.
+           03 LABEL COL + 2 ' years old to'.
+           03 ENTRY-FIELD 3-D ID 102 COL + 2 PIC X(02) USING
+              CFIG-AGE-MAX AUTO.
+           03 LABEL COL + 2 ' years old'.
+           03 LABEL LINE 04 COL 04 'Height Allowable:'.
+           03 ENTRY-FIELD 3-D ID 103 COL 20 PIC 999.99 USING
+              CFIG-HEIGHT-MIN AUTO.
+           03 LABEL COL + 2 'cm to'.
+           03 ENTRY-FIELD 3-D ID 104 COL + 3 PIC 999.99 USING
+              CFIG-HEIGHT-MAX AUTO.
+           03 LABEL COL + 2 'cm'.
+           03 LABEL LINE 05 COL 04 'Weight Allowable:'.
+           03 ENTRY-FIELD 3-D ID 105 COL 20 PIC Z99.99 USING
+              CFIG-WEIGHT-MIN AUTO.
+           03 LABEL COL + 2 'kg to'.
+           03 ENTRY-FIELD 3-D ID 106 COL + 3.5 PIC Z99.99 USING
+              CFIG-WEIGHT-MAX AUTO.
+           03 LABEL COL + 2 'kg'.
+
+      *****************************************************************
+       PROCEDURE DIVISION USING LINK-PROG-KEY.
+
+        DECLARATIVES.
+
+           COPY '/z/y25b31/sp2/lib/fd/dccfig'.
+
+        END DECLARATIVES.
+
+      ******************************************************************
+        BEGIN.
+
+           OPEN I-O CFIG-FILE.
+
+      * Floating Window
+           MOVE 'Setup System Configuration' TO S-WINDOW-TITLE.
+           COPY '/v/cps/lib/std/floatwin.prd'.
+
+           INITIALIZE CFIG-REC.
+           MOVE ZERO TO CFIG-KEY.
+           READ CFIG-FILE INVALID
+                MOVE 100035 TO S-ERROR-CODE.
+           PERFORM 0100-MAIN THRU 0199-END.
+
+        TERMINATION.
+           CLOSE WINDOW S-WINDOW.
+           CLOSE CFIG-FILE.
+           EXIT PROGRAM.
+           STOP RUN.
+
+      ****************************************************************
+        0100-MAIN.
+
+           PERFORM FKEY-RTN THRU FKEY-END.
+           PERFORM ERROR-RTN THRU ERROR-END.
+           DISPLAY SELECT-SCR.
+           ACCEPT  SELECT-SCR.
+           MOVE 4 TO ACCEPT-CONTROL.
+
+           IF K-ESCAPE
+              MOVE 'N' TO S-RUN GO TO 0199-END.
+
+           IF NOT K-ENTER GO TO 0100-MAIN.
+
+           PERFORM CONFIRM-RTN THRU CONFIRM-END.
+           IF S-CONFIRM NOT = 'Y'
+              GO TO 0100-MAIN.
+
+           REWRITE CFIG-REC.
+
+        0190-MAIN.
+
+           DESTROY SELECT-SCR.
+
+        0199-END. EXIT.
+
+      ******************************************************************
+        GET-NEXT.
+
+           START CFIG-FILE KEY > CFIG-KEY INVALID
+                 MOVE 100010 TO S-ERROR-CODE
+                 NOT INVALID
+                     READ CFIG-FILE NEXT END
+                          MOVE 100010 TO S-ERROR-CODE
+                     END-READ.
+
+        GET-NEXT-END. EXIT.
+
+      ******************************************************************
+        GET-PREV.
+
+           START CFIG-FILE KEY < CFIG-KEY INVALID
+                 MOVE 100005 TO S-ERROR-CODE
+                 NOT INVALID
+                     READ CFIG-FILE BACKWARD END
+                          MOVE 100005 TO S-ERROR-CODE
+                     END-READ.
+
+        GET-PREV-END. EXIT.
+
+      ******************************************************************
+        FKEY-RTN.
+
+           MOVE '1yy456y89012y4567890' TO S-ACTIVE-FKEY
+
+           CALL   '/v/cps/lib/std/x-fkey' USING
+                  S-ACTIVE-FKEY, S-TOOLBAR, S-BUTTON.
+           CANCEL '/v/cps/lib/std/x-fkey'.
+
+        FKEY-END. EXIT.
+
+      ******************************************************************
+
+           COPY '/v/cps/lib/std/cfirm.prd'.
+           COPY '/v/cps/lib/std/errmsg.prd'.
+
+      * End of program

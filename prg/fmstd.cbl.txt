@@ -1,0 +1,585 @@
+IDENTIFICATION DIVISION.
+        PROGRAM-ID.   FMSTD.
+
+      * MAINTAIN STUDENT FILE - SP2 VERSION
+      * AUTHOR    DATE   TYPE   ACC    NOTES
+      * MUNA    30/09/25  -     PA      SP1
+      * MUNA    14/10/25  -     PA      SP2
+      * Updated to include Religion, Height, Weight, Age
+
+       ENVIRONMENT DIVISION.
+        INPUT-OUTPUT SECTION.
+         FILE-CONTROL.
+           COPY '/z/y25b31/sp2/lib/fd/fcstd'.
+           COPY '/z/y25b31/sp2/lib/fd/fccy'.
+           COPY '/z/y25b31/sp2/lib/fd/fcrc'.
+           COPY '/z/y25b31/sp2/lib/fd/fcrg'.
+           COPY '/z/y25b31/sp2/lib/fd/fccfig'.
+
+       DATA DIVISION.
+        FILE SECTION.
+           COPY '/z/y25b31/sp2/lib/fd/fdstd'.
+           COPY '/z/y25b31/sp2/lib/fd/fdcy'.
+           COPY '/z/y25b31/sp2/lib/fd/fdrc'.
+           COPY '/z/y25b31/sp2/lib/fd/fdrg'.
+           COPY '/z/y25b31/sp2/lib/fd/fdcfig'.
+
+        WORKING-STORAGE SECTION.
+           COPY '/z/y25b31/sp2/lib/fd/dbstd'.
+           COPY '/z/y25b31/sp2/lib/fd/dbcy'.
+           COPY '/z/y25b31/sp2/lib/fd/dbrc'.
+           COPY '/z/y25b31/sp2/lib/fd/dbrg'.
+           COPY '/z/y25b31/sp2/lib/fd/dbcfig'.
+           COPY '/v/cps/lib/std/stdvar.def'.
+           COPY '/v/cps/lib/std/fkey.def'.
+           COPY RESOURCE '/v/cps/lib/icon/help.jpg'.
+
+        01 WS-MISC.
+           03 WS-CY-NAME            PIC X(30).
+           03 WS-RC-NAME            PIC X(30).
+           03 WS-RG-NAME            PIC X(30).
+           03 WS-GENDER             PIC 9(01).
+           03 WS-DDMMYYYY           PIC 9(08).
+           03 WS-AGE-YYY            PIC 9(02).
+           03 WS-AGE-MM             PIC 9(02).
+           03 WS-AGE-DISPLAY        PIC Z9.
+
+        LINKAGE SECTION.
+        01  LINK-PROG-KEY           PIC X(30).
+
+        SCREEN SECTION.
+        01  SELECT-SCR.
+            COPY '/v/cps/lib/std/fmmode.scr'.
+            03  LABEL LINE 02 COL 04 'Student AC#:'.
+            03  ENTRY-FIELD 3-D ID 101 COL + 3 CELL PIC X(06)
+                SIZE 7 USING STD-KEY AUTO.
+            03  PUSH-BUTTON 'F10 - Help Table' NO-TAB
+                COL + 1.5 LINES 13
+                BITMAP-HANDLE S-BITMAP
+                BITMAP-NUMBER     = 1
+                TERMINATION-VALUE = 101.
+
+        01  PROCESS-SCR.
+            COPY '/v/cps/lib/std/fmmode.scr'.
+            03  LABEL LINE 02 COL 04 'Student AC#:'.
+            03  ENTRY-FIELD 3-D ENABLED 0 COL 15 PIC X(06) USING
+                STD-KEY.
+
+            03  LABEL LINE + 1 COL 04 'Name:'.
+            03  ENTRY-FIELD 3-D ID 102 COL 15 PIC X(40) USING
+                STD-NAME.
+
+            03  LABEL LINE + 1 COL 04 'Address:'.
+            03  ENTRY-FIELD 3-D ID 103 COL 15 PIC X(40) USING
+                STD-ADD1.
+            03  ENTRY-FIELD 3-D LINE + 1 COL 15 PIC X(40) USING
+                STD-ADD2.
+            03  ENTRY-FIELD 3-D LINE + 1 COL 15 PIC X(40) USING
+                STD-ADD3.
+
+            03  LABEL LINE + 1 COL 04 'Gender:'.
+            03  RADIO-BUTTON LINE + 0.2 COL 15 GROUP = 1 GROUP-VALUE = 1
+                VALUE WS-GENDER.
+            03  LABEL LINE - 0.2 COL + 2 'Male'.
+            03  RADIO-BUTTON LINE + 0.2 COL + 3 GROUP = 1
+                GROUP-VALUE = 2 VALUE WS-GENDER.
+            03  LABEL LINE - 0.2 COL + 2 'Female'.
+
+            03  LABEL LINE + 1 COL 04 'DOB:'.
+            03  ENTRY-FIELD 3-D ID 104 COL 15 PIC 99/99/9999 USING
+                STD-DOB-DMY.
+            03  PUSH-BUTTON 'F10 - Calendar' NO-TAB
+                COL + 1.5 LINES 13
+                BITMAP-HANDLE S-BITMAP
+                BITMAP-NUMBER     = 1
+                TERMINATION-VALUE = 104.
+
+            03  LABEL LINE + 1 COL 04 'Age: '.
+            03  ENTRY-FIELD 3-D COL 15 PIC 99 USING
+                WS-AGE-DISPLAY.
+
+            03  LABEL LINE + 1 COL 04 'Height:'.
+            03  ENTRY-FIELD 3-D ID 105 COL 15 PIC 999.99 USING
+                STD-HEIGHT.
+            03  LABEL COL + 2 'cm'.
+
+            03  LABEL LINE + 1 COL 04 'Weight:'.
+            03  ENTRY-FIELD 3-D ID 106 COL 15 PIC Z999.99 USING
+                STD-WEIGHT.
+            03  LABEL COL + 2 'kg'.
+
+            03  LABEL LINE + 1 COL 04 'Country:'.
+            03  ENTRY-FIELD 3-D ID 107 COL 15 PIC X(02) SIZE 3 USING
+                STD-CY-KEY.
+            03  PUSH-BUTTON 'F10 - Help Table' NO-TAB
+                COL + 1.5 LINES 13
+                BITMAP-HANDLE S-BITMAP
+                BITMAP-NUMBER     = 1
+                TERMINATION-VALUE = 107.
+            03  LABEL COL + 1 FROM WS-CY-NAME.
+
+            03  LABEL LINE + 1 COL 04 'Race:'.
+            03  ENTRY-FIELD 3-D ID 108 COL 15 PIC X(02) SIZE 3 USING
+                STD-RC-KEY.
+            03  PUSH-BUTTON 'F10 - Help Table' NO-TAB
+                COL + 1.5 LINES 13
+                BITMAP-HANDLE S-BITMAP
+                BITMAP-NUMBER     = 1
+                TERMINATION-VALUE = 108.
+            03  LABEL COL + 1 FROM WS-RC-NAME.
+
+            03  LABEL LINE + 1 COL 04 'Religion:'.
+            03  ENTRY-FIELD 3-D ID 109 COL 15 PIC X(02) SIZE 3 USING
+                STD-RG-KEY.
+            03  PUSH-BUTTON 'F10 - Help Table' NO-TAB
+                COL + 1.5 LINES 13
+                BITMAP-HANDLE S-BITMAP
+                BITMAP-NUMBER     = 1
+                TERMINATION-VALUE = 109.
+            03  LABEL COL + 1 FROM WS-RG-NAME.
+
+            03  LABEL LINE + 1 COL 04 'Email:'.
+            03  ENTRY-FIELD 3-D ID 110 COL 15 PIC X(50) USING
+                STD-EMAIL.
+
+            03  LABEL LINE + 1 COL 04 'Mobile:'.
+            03  ENTRY-FIELD 3-D ID 111 COL 15 PIC X(30) USING
+                STD-MOBILE.
+
+      *******************************************************************
+       PROCEDURE DIVISION USING LINK-PROG-KEY.
+
+        DECLARATIVES.
+           COPY '/z/y25b31/sp2/lib/fd/dcstd'.
+           COPY '/z/y25b31/sp2/lib/fd/dccy'.
+           COPY '/z/y25b31/sp2/lib/fd/dcrc'.
+           COPY '/z/y25b31/sp2/lib/fd/dcrg'.
+           COPY '/z/y25b31/sp2/lib/fd/dccfig'.
+        END DECLARATIVES.
+
+      *******************************************************************
+        BEGIN.
+           MOVE 'N' TO S-RUN.
+           OPEN I-O STD-FILE.
+           OPEN INPUT CY-FILE.
+           OPEN INPUT RC-FILE.
+           OPEN INPUT RG-FILE.
+           OPEN INPUT CFIG-FILE.
+
+      * Read configuration file
+           MOVE '0' TO CFIG-KEY.
+           READ CFIG-FILE INVALID KEY
+                DISPLAY 'Configuration file not found!' AT 2301
+           END-READ.
+
+      * Floating Window
+           MOVE 'Define Student Profile' TO S-WINDOW-TITLE.
+           COPY '/v/cps/lib/std/floatwin.prd'.
+
+      * Bitmap
+           CALL 'W$BITMAP' USING
+                WBITMAP-LOAD, 'help.jpg' GIVING S-BITMAP.
+
+           MOVE 'Y' TO S-RUN.
+           INITIALIZE STD-REC.
+           PERFORM 0100-MAIN THRU 0199-END UNTIL S-RUN = 'N'.
+
+        TERMINATION.
+           CLOSE WINDOW S-WINDOW.
+           CLOSE STD-FILE.
+           CLOSE CY-FILE.
+           CLOSE RC-FILE.
+           CLOSE RG-FILE.
+           CLOSE CFIG-FILE.
+           EXIT PROGRAM.
+           STOP RUN.
+
+      *******************************************************************
+        0100-MAIN.
+           MOVE 'S' TO S-PRS-MODE.
+           PERFORM FKEY-RTN THRU FKEY-END.
+
+        0110-MAIN.
+
+           UNLOCK STD-FILE.
+           PERFORM ERROR-RTN THRU ERROR-END.
+           DISPLAY SELECT-SCR.
+           ACCEPT SELECT-SCR.
+           MOVE 4 TO ACCEPT-CONTROL.
+
+           IF K-ESCAPE
+              MOVE 'N' TO S-RUN GO TO 0190-MAIN.
+
+           IF K-F2
+               PERFORM GET-NEXT THRU GET-NEXT-END
+               IF S-STATUS-CHECK = 'Y' OR S-ERROR-CODE NOT = ZEROS
+                   GO TO 0110-MAIN
+               ELSE
+                   GO TO 0120-MAIN.
+
+           IF K-F3
+               PERFORM GET-PREV THRU GET-PREV-END
+               IF S-STATUS-CHECK = 'Y' OR S-ERROR-CODE NOT = ZEROS
+                   GO TO 0110-MAIN
+               ELSE
+                   GO TO 0120-MAIN.
+
+           IF K-F6
+               CALL   '/z/y25b31/sp2/prg/ptstd' USING LINK-PROG-KEY
+               CANCEL '/z/y25b31/sp2/prg/ptstd'
+               GO TO 0110-MAIN.
+
+           IF K-F7
+               CALL   '/z/y25b31/sp2/prg/vwstd' USING LINK-PROG-KEY
+               CANCEL '/z/y25b31/sp2/prg/vwstd'
+               GO TO 0110-MAIN.
+
+           IF (K-F10 AND S-CONTROL-ID = 101) OR KEY-STATUS = 101
+               CALL   '/z/y25b31/sp2/prg/hpstd' USING STD-KEY, S-OK
+               CANCEL '/z/y25b31/sp2/prg/hpstd'
+               MOVE 101 TO S-CONTROL-ID
+               IF S-OK = 'Y'
+                   DISPLAY SELECT-SCR
+                   GO TO 0120-MAIN.
+
+           IF NOT K-ENTER GO TO 0110-MAIN.
+
+           IF STD-KEY = SPACES
+               MOVE 200005 TO S-ERROR-CODE
+               MOVE 101    TO S-CONTROL-ID
+               GO TO 0110-MAIN.
+
+        0120-MAIN.
+           MOVE 'N' TO S-STATUS-CHECK.
+           MOVE 'R' TO S-PRS-MODE.
+           READ STD-FILE INVALID
+               MOVE 'A' TO S-PRS-MODE
+               INITIALIZE STD-DETAILS
+               MOVE ZEROS TO STD-PADDING.
+
+           IF S-STATUS-CHECK = 'Y' GO TO 0190-MAIN.
+
+           EVALUATE STD-GENDER
+            WHEN 'M' MOVE 1 TO WS-GENDER
+            WHEN 'F' MOVE 2 TO WS-GENDER
+            WHEN OTHER MOVE 1 TO WS-GENDER
+           END-EVALUATE.
+
+           PERFORM GET-CY-NAME THRU GET-CY-NAME-END.
+           PERFORM GET-RC-NAME THRU GET-RC-NAME-END.
+           PERFORM GET-RG-NAME THRU GET-RG-NAME-END.
+           PERFORM CALCULATE-AGE THRU CALCULATE-AGE-END.
+
+           DESTROY SELECT-SCR.
+           PERFORM FKEY-RTN THRU FKEY-END.
+
+        0130-MAIN.
+
+           PERFORM ERROR-RTN THRU ERROR-END.
+           DISPLAY PROCESS-SCR.
+           ACCEPT  PROCESS-SCR.
+           MOVE 4 TO ACCEPT-CONTROL.
+
+           IF K-ESCAPE
+               MOVE 'N' TO S-RUN GO TO 0190-MAIN.
+
+           IF K-F1 GO TO 0190-MAIN.
+
+           IF K-F2
+               PERFORM GET-NEXT THRU GET-NEXT-END
+               PERFORM GET-CY-NAME THRU GET-CY-NAME-END
+               PERFORM GET-RC-NAME THRU GET-RC-NAME-END
+               PERFORM GET-RG-NAME THRU GET-RG-NAME-END
+               PERFORM CALCULATE-AGE THRU CALCULATE-AGE-END
+               GO TO 0120-MAIN.
+
+           IF K-F3
+               PERFORM GET-PREV THRU GET-PREV-END
+               PERFORM GET-CY-NAME THRU GET-CY-NAME-END
+               PERFORM GET-RC-NAME THRU GET-RC-NAME-END
+               PERFORM GET-RG-NAME THRU GET-RG-NAME-END
+               PERFORM CALCULATE-AGE THRU CALCULATE-AGE-END
+               GO TO 0120-MAIN.
+
+           IF K-F4 AND S-PRS-MODE = 'R'
+               PERFORM CONFIRM-RTN THRU CONFIRM-END
+               IF S-CONFIRM = 'Y'
+                   DELETE STD-FILE
+                   GO TO 0190-MAIN
+               ELSE
+                   GO TO 0130-MAIN.
+
+           IF K-F6
+               CALL   '/z/y25b31/sp2/prg/ptstd' USING STD-KEY
+               CANCEL '/z/y25b31/sp2/prg/ptstd'
+               GO TO 0130-MAIN.
+
+           IF (K-F10 AND S-CONTROL-ID = 104) OR KEY-STATUS = 104
+               CALL   '/z/y25b31/sp2/lib/std/x-hpcal' USING
+                      WS-DDMMYYYY, S-OK
+               CANCEL '/z/y25b31/sp2/lib/std/x-hpcal'
+               MOVE 104 TO S-CONTROL-ID
+               IF S-OK = 'Y'
+                   MOVE WS-DDMMYYYY TO STD-DOB-DMY
+                   PERFORM CALCULATE-AGE THRU CALCULATE-AGE-END
+                   DISPLAY PROCESS-SCR
+               END-IF
+               GO TO 0130-MAIN.
+
+           IF (K-F10 AND S-CONTROL-ID = 107) OR KEY-STATUS = 107
+               CALL   '/z/y25b31/sp2/prg/hpcy' USING STD-CY-KEY, S-OK
+               CANCEL '/z/y25b31/sp2/prg/hpcy'
+               MOVE 107 TO S-CONTROL-ID
+               IF S-OK = 'Y'
+                   PERFORM GET-CY-NAME THRU GET-CY-NAME-END
+                   DISPLAY PROCESS-SCR
+               END-IF
+               GO TO 0130-MAIN.
+
+           IF (K-F10 AND S-CONTROL-ID = 108) OR KEY-STATUS = 108
+               CALL   '/z/y25b31/sp2/prg/hprc' USING STD-RC-KEY, S-OK
+               CANCEL '/z/y25b31/sp2/prg/hprc'
+               MOVE 108 TO S-CONTROL-ID
+               IF S-OK = 'Y'
+                   PERFORM GET-RC-NAME THRU GET-RC-NAME-END
+                   DISPLAY PROCESS-SCR
+               END-IF
+               GO TO 0130-MAIN.
+
+           IF (K-F10 AND S-CONTROL-ID = 109) OR KEY-STATUS = 109
+               CALL   '/z/y25b31/sp2/prg/hprg' USING STD-RG-KEY, S-OK
+               CANCEL '/z/y25b31/sp2/prg/hprg'
+               MOVE 109 TO S-CONTROL-ID
+               IF S-OK = 'Y'
+                   PERFORM GET-RG-NAME THRU GET-RG-NAME-END
+                   DISPLAY PROCESS-SCR
+               END-IF
+               GO TO 0130-MAIN.
+
+           IF NOT (K-F8 OR K-ENTER) GO TO 0130-MAIN.
+
+      * Validate required fields
+           IF STD-NAME = SPACES
+               MOVE 200015  TO S-ERROR-CODE
+               MOVE 102     TO S-CONTROL-ID
+               GO TO 0130-MAIN.
+
+           IF STD-DOB-DMY = ZEROS
+              MOVE 100020 TO S-ERROR-CODE
+              MOVE 104    TO S-CONTROL-ID
+              GO TO 0130-MAIN.
+
+           IF STD-DOB-DMY NOT = ZEROS
+               CALL   '/z/y25b31/sp2/lib/std/f-ckdate' USING
+                      'D', STD-DOB-DMY, S-ERROR-CODE
+               CANCEL '/z/y25b31/sp2/lib/std/f-ckdate'
+               IF S-ERROR-CODE NOT = ZEROS
+                   MOVE 104 TO S-CONTROL-ID
+                   GO TO 0130-MAIN
+               END-IF.
+
+      * Validate Height
+           IF STD-HEIGHT = ZEROS
+               MOVE 200016 TO S-ERROR-CODE
+               MOVE 105    TO S-CONTROL-ID
+               GO TO 0130-MAIN.
+
+           IF STD-HEIGHT < CFIG-HEIGHT-MIN OR
+              STD-HEIGHT > CFIG-HEIGHT-MAX
+               MOVE 200017 TO S-ERROR-CODE
+               MOVE 105    TO S-CONTROL-ID
+               GO TO 0130-MAIN.
+
+      * Validate Weight
+           IF STD-WEIGHT = ZEROS
+               MOVE 200018 TO S-ERROR-CODE
+               MOVE 106    TO S-CONTROL-ID
+               GO TO 0130-MAIN.
+
+           IF STD-WEIGHT < CFIG-WEIGHT-MIN OR
+              STD-WEIGHT > CFIG-WEIGHT-MAX
+               MOVE 200019 TO S-ERROR-CODE
+               MOVE 106    TO S-CONTROL-ID
+               GO TO 0130-MAIN.
+
+      * Validate Country
+           IF STD-CY-KEY = SPACES
+               MOVE 200015  TO S-ERROR-CODE
+               MOVE 107     TO S-CONTROL-ID
+               GO TO 0130-MAIN.
+
+           IF STD-CY-KEY NOT = SPACES
+               MOVE STD-CY-KEY TO CY-KEY
+               MOVE 'N' TO S-STATUS-CHECK
+               READ CY-FILE INVALID
+                   MOVE 100015  TO S-ERROR-CODE
+                   MOVE 107     TO S-CONTROL-ID
+                   GO TO 0130-MAIN
+               END-READ
+               PERFORM GET-CY-NAME THRU GET-CY-NAME-END.
+
+      * Validate Race
+           IF STD-RC-KEY = SPACES
+               MOVE 200015  TO S-ERROR-CODE
+               MOVE 108     TO S-CONTROL-ID
+               GO TO 0130-MAIN.
+
+           IF STD-RC-KEY NOT = SPACES
+               MOVE STD-RC-KEY TO RC-KEY
+               MOVE 'N' TO S-STATUS-CHECK
+               READ RC-FILE INVALID
+                   MOVE 100015  TO S-ERROR-CODE
+                   MOVE 108     TO S-CONTROL-ID
+                   GO TO 0130-MAIN
+               END-READ
+               PERFORM GET-RC-NAME THRU GET-RC-NAME-END.
+
+      * Validate Religion
+           IF STD-RG-KEY = SPACES
+               MOVE 200015  TO S-ERROR-CODE
+               MOVE 109     TO S-CONTROL-ID
+               GO TO 0130-MAIN.
+
+           IF STD-RG-KEY NOT = SPACES
+               MOVE STD-RG-KEY TO RG-KEY
+               MOVE 'N' TO S-STATUS-CHECK
+               READ RG-FILE INVALID
+                   MOVE 100015  TO S-ERROR-CODE
+                   MOVE 109     TO S-CONTROL-ID
+                   GO TO 0130-MAIN
+               END-READ
+               PERFORM GET-RG-NAME THRU GET-RG-NAME-END.
+
+      * Validate Age using x-gtage
+           CALL '/z/y25b31/sp2/lib/std/f-gtage' USING
+                STD-DOB-DMY, WS-AGE-YYY, S-ERROR-CODE.
+           IF S-ERROR-CODE NOT = ZEROS
+               MOVE 104 TO S-CONTROL-ID
+               GO TO 0130-MAIN.
+
+           IF WS-AGE-YYY < CFIG-AGE-MIN OR WS-AGE-YYY > CFIG-AGE-MAX
+               MOVE 200020 TO S-ERROR-CODE
+               MOVE 104    TO S-CONTROL-ID
+               GO TO 0130-MAIN.
+
+           PERFORM CONFIRM-RTN THRU CONFIRM-END.
+           IF S-CONFIRM NOT = 'Y'
+                   GO TO 0130-MAIN.
+
+           EVALUATE WS-GENDER
+            WHEN 1 MOVE 'M' TO STD-GENDER
+            WHEN 2 MOVE 'F' TO STD-GENDER
+           END-EVALUATE.
+
+      *    Store the calculated age in database
+           MOVE WS-AGE-YYY TO STD-AGE.
+
+           IF S-PRS-MODE = 'A' WRITE STD-REC.
+           IF S-PRS-MODE = 'R' REWRITE STD-REC.
+
+        0190-MAIN.
+
+           DESTROY PROCESS-SCR.
+
+        0199-END. EXIT.
+
+      ******************************************************************
+        CALCULATE-AGE.
+           INITIALIZE WS-AGE-YYY, WS-AGE-MM, WS-AGE-DISPLAY.
+           IF STD-DOB-DMY NOT = ZEROS
+               CALL '/z/y25b31/sp2/lib/std/f-gtage' USING
+                    STD-DOB-DMY, WS-AGE-YYY, WS-AGE-MM
+               MOVE WS-AGE-YYY TO WS-AGE-DISPLAY.
+        CALCULATE-AGE-END. EXIT.
+
+      ******************************************************************
+        GET-NEXT.
+
+           START STD-FILE KEY > STD-KEY INVALID
+               MOVE 100010 TO S-ERROR-CODE
+               NOT INVALID
+                   READ STD-FILE NEXT END
+                       MOVE 100010 TO S-ERROR-CODE
+                   END-READ.
+
+        GET-NEXT-END. EXIT.
+
+      ******************************************************************
+        GET-PREV.
+
+           START STD-FILE KEY < STD-KEY INVALID
+               MOVE 100005 TO S-ERROR-CODE
+               NOT INVALID
+                   READ STD-FILE PREVIOUS END
+                       MOVE 100005 TO S-ERROR-CODE
+                   END-READ.
+
+        GET-PREV-END. EXIT.
+
+      ******************************************************************
+        GET-CY-NAME.
+
+           INITIALIZE WS-CY-NAME.
+           IF STD-CY-KEY NOT = SPACES
+               MOVE STD-CY-KEY TO CY-KEY
+               MOVE 'N' TO S-STATUS-CHECK
+               READ CY-FILE INVALID
+                   CONTINUE
+               NOT INVALID
+                   MOVE CY-NAME TO WS-CY-NAME
+               END-READ.
+
+        GET-CY-NAME-END. EXIT.
+
+      ******************************************************************
+        GET-RC-NAME.
+
+           INITIALIZE WS-RC-NAME.
+           IF STD-RC-KEY NOT = SPACES
+               MOVE STD-RC-KEY TO RC-KEY
+               MOVE 'N' TO S-STATUS-CHECK
+               READ RC-FILE INVALID
+                   CONTINUE
+               NOT INVALID
+                   MOVE RC-NAME TO WS-RC-NAME
+               END-READ.
+
+        GET-RC-NAME-END. EXIT.
+
+      ******************************************************************
+        GET-RG-NAME.
+
+           INITIALIZE WS-RG-NAME.
+           IF STD-RG-KEY NOT = SPACES
+               MOVE STD-RG-KEY TO RG-KEY
+               MOVE 'N' TO S-STATUS-CHECK
+               READ RG-FILE INVALID
+                   CONTINUE
+               NOT INVALID
+                   MOVE RG-NAME TO WS-RG-NAME
+               END-READ.
+
+        GET-RG-NAME-END. EXIT.
+
+      ******************************************************************
+        FKEY-RTN.
+
+           EVALUATE S-PRS-MODE
+              WHEN 'S' MOVE '1yy456y89012y4567890' TO S-ACTIVE-FKEY
+              WHEN 'A' MOVE 'yyy4567y9012y4567890' TO S-ACTIVE-FKEY
+              WHEN 'R' MOVE 'yyyy567y9012y4567890' TO S-ACTIVE-FKEY
+           END-EVALUATE.
+
+           CALL   '/v/cps/lib/std/x-fkey' USING
+                  S-ACTIVE-FKEY, S-TOOLBAR, S-BUTTON.
+           CANCEL '/v/cps/lib/std/x-fkey'.
+           COPY   '/v/cps/lib/std/fmmode.prd'.
+
+        FKEY-END. EXIT.
+
+      ******************************************************************
+
+           COPY '/v/cps/lib/std/cfirm.prd'.
+           COPY '/v/cps/lib/std/errmsg.prd'.
+
+      * End of Program.

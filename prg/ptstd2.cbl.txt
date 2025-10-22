@@ -1,0 +1,348 @@
+IDENTIFICATION DIVISION.
+        PROGRAM-ID. PTSTD2.
+
+      * PRINT STUDENT PROFILE (DETAIL)
+      * AUTHOR    DATE    TYPE   A/C   NOTES
+      * MUNA   15/10/25    -     PA     SP2
+
+       ENVIRONMENT DIVISION.
+        INPUT-OUTPUT SECTION.
+         FILE-CONTROL.
+           COPY '/z/y25b31/sp2/lib/fd/fcstd.t'.
+           COPY '/z/y25b31/sp2/lib/fd/fcstd'.
+           COPY '/z/y25b31/sp2/lib/fd/fccy'.
+           COPY '/z/y25b31/sp2/lib/fd/fcrc'.
+           COPY '/z/y25b31/sp2/lib/fd/fcrg'.
+           COPY '/v/cps/lib/std/fcprint'.
+
+       DATA DIVISION.
+        FILE SECTION.
+           COPY '/z/y25b31/sp2/lib/fd/fdstd.t'.
+           COPY '/z/y25b31/sp2/lib/fd/fdstd'.
+           COPY '/z/y25b31/sp2/lib/fd/fdcy'.
+           COPY '/z/y25b31/sp2/lib/fd/fdrc'.
+           COPY '/z/y25b31/sp2/lib/fd/fdrg'.
+           COPY '/v/cps/lib/std/fdprint'.
+
+        WORKING-STORAGE SECTION.
+           COPY '/z/y25b31/sp2/lib/fd/dbstd.t'.
+           COPY '/z/y25b31/sp2/lib/fd/dbstd'.
+           COPY '/z/y25b31/sp2/lib/fd/dbcy'.
+           COPY '/z/y25b31/sp2/lib/fd/dbrc'.
+           COPY '/z/y25b31/sp2/lib/fd/dbrg'.
+           COPY '/v/cps/lib/std/dbprint'.
+           COPY '/v/cps/lib/std/stdvar.def'.
+           COPY '/v/cps/lib/std/fkey.def'.
+           COPY RESOURCE '/v/cps/lib/icon/help.jpg'.
+
+        01 PRT-HEADER.
+           03 PRT-COMPNAME      PIC X(174).
+           03 FIL               PIC X(07) VALUE 'DATE :'.
+           03 PRT-SYS-DMY       PIC 99/99/9999.
+           03 FIL               PIC X(02).
+           03 FIL               PIC X(07) VALUE 'PAGE :'.
+           03 PRT-PAGE-COUNT    PIC 9(04).
+
+        01 PRT-HEADER2.
+           03 FIL               PIC X(174) VALUE
+              'REPORT TITLE : STUDENT PROFILE DETAIL'.
+           03 FIL               PIC X(07) VALUE 'TIME :'.
+           03 PRT-START-HHMM    PIC X(07).
+
+        01 PRT-HEADER3.
+           03 FIL               PIC X(06) VALUE ' NO   '.
+           03 FIL               PIC X(30) VALUE
+              ' AC# + NAME + ADDRESS            '.
+           03 FIL               PIC X(02).
+           03 FIL               PIC X(12) VALUE 'PROFILE 1   '.
+           03 FIL               PIC X(16) VALUE 'PROFILE 1 DATA  '.
+           03 FIL               PIC X(12) VALUE 'PROFILE 2   '.
+           03 FIL               PIC X(28) VALUE
+              'PROFILE 2 DATA              '.
+
+        01 PRT-LINE.
+           03 FIL               PIC X(01).
+           03 FIL               PIC X(06) VALUE '----- '.
+           03 FIL               PIC X(30) VALUE
+              '------------------------------- '.
+           03 FIL               PIC X(01).
+           03 FIL               PIC X(12) VALUE '----------- '.
+           03 FIL               PIC X(16) VALUE '--------------- '.
+           03 FIL               PIC X(12) VALUE '----------- '.
+           03 FIL               PIC X(28) VALUE
+              '----------------------------'.
+
+        01 PRT-NEXT-PAGE.
+           03 FIL               PIC X(16) VALUE
+              '* CONTINUE PAGE'.
+           03 PRT-PAGE-COUNT2   PIC 9(04).
+           03 FIL               PIC X(02) VALUE ' *'.
+
+        01 PRT-DETAIL-LINE1.
+           03 FIL               PIC X(01).
+           03 PRT-REC-COUNT     PIC 9(05).
+           03 FIL               PIC X(01).
+           03 PRT-STD-KEY       PIC X(06).
+           03 FIL               PIC X(25).
+           03 FIL               PIC X(08) VALUE 'Gender: '.
+           03 FIL               PIC X(04).
+           03 PRT-STD-GENDER    PIC X(08).
+           03 FIL               PIC X(08).
+           03 FIL               PIC X(09) VALUE 'Country: '.
+           03 FIL               PIC X(03).
+           03 PRT-CY-NAME       PIC X(20).
+
+        01 PRT-DETAIL-LINE2.
+           03 FIL               PIC X(07).
+           03 PRT-STD-NAME      PIC X(30).
+           03 FIL               PIC X(01).
+           03 FIL               PIC X(05) VALUE 'DOB: '.
+           03 FIL               PIC X(07).
+           03 PRT-STD-DOB-DMY   PIC 99/99/9999.
+           03 FIL               PIC X(06).
+           03 FIL               PIC X(06) VALUE 'Race: '.
+           03 FIL               PIC X(06).
+           03 PRT-RC-NAME       PIC X(20).
+
+        01 PRT-DETAIL-LINE3.
+           03 FIL               PIC X(07).
+           03 PRT-STD-ADD1      PIC X(30).
+           03 FIL               PIC X(01).
+           03 FIL               PIC X(05) VALUE 'Age: '.
+           03 FIL               PIC X(07).
+           03 PRT-STD-AGE       PIC 99.
+           03 FIL               PIC X(14).
+           03 FIL               PIC X(10) VALUE 'Religion: '.
+           03 FIL               PIC X(02).
+           03 PRT-RG-NAME       PIC X(20).
+
+        01 PRT-DETAIL-LINE4.
+           03 FIL               PIC X(07).
+           03 PRT-STD-ADD2      PIC X(30).
+           03 FIL               PIC X(01).
+           03 FIL               PIC X(08) VALUE 'Height: '.
+           03 FIL               PIC X(04).
+           03 PRT-STD-HEIGHT    PIC ZZ9.99.
+           03 FIL               PIC X(03) VALUE ' cm'.
+           03 FIL               PIC X(07).
+           03 FIL               PIC X(09) VALUE 'Mobile#: '.
+           03 FIL               PIC X(03).
+           03 PRT-STD-MOBILE    PIC X(30).
+
+        01 PRT-DETAIL-LINE5.
+           03 FIL               PIC X(07).
+           03 PRT-STD-ADD3      PIC X(30).
+           03 FIL               PIC X(01).
+           03 FIL               PIC X(08) VALUE 'Weight: '.
+           03 FIL               PIC X(04).
+           03 PRT-STD-WEIGHT    PIC ZZ9.99.
+           03 FIL               PIC X(03) VALUE ' kg'.
+           03 FIL               PIC X(07).
+           03 FIL               PIC X(08) VALUE 'Email#: '.
+           03 FIL               PIC X(04).
+           03 PRT-STD-EMAIL     PIC X(30).
+
+        01 PRT-END.
+           03 FIL               PIC X(26) VALUE
+              '* END OF REPORT *  TIME :'.
+           03 PRT-END-HHMM      PIC X(07).
+
+        LINKAGE SECTION.
+        01 LINK-PROG-KEY        PIC X(30).
+        01 LINK-DATA-ID         PIC X(08).
+        01 LINK-SORT-TYPE       PIC 9(01).
+
+      ******************************************************************
+       PROCEDURE DIVISION USING LINK-PROG-KEY, LINK-DATA-ID,
+                                LINK-SORT-TYPE.
+
+        DECLARATIVES.
+
+           COPY '/z/y25b31/sp2/lib/fd/dcstd.t'.
+           COPY '/z/y25b31/sp2/lib/fd/dcstd'.
+           COPY '/z/y25b31/sp2/lib/fd/dccy'.
+           COPY '/z/y25b31/sp2/lib/fd/dcrc'.
+           COPY '/z/y25b31/sp2/lib/fd/dcrg'.
+           COPY '/v/cps/lib/std/dcprint'.
+
+        END DECLARATIVES.
+
+      ******************************************************************
+        BEGIN.
+
+           MOVE 'N' TO S-RUN.
+           MOVE LINK-DATA-ID TO STD-T-KEY.
+           OPEN INPUT STD-T-FILE, STD-FILE, CY-FILE, RC-FILE, RG-FILE.
+
+           COPY '/v/cps/lib/std/gtcoid.prd'.
+           MOVE 'Print Student Profile Detail' TO S-WINDOW-TITLE.
+           COPY '/v/cps/lib/std/ptwin.prd'.
+
+           MOVE 'Y' TO S-RUN.
+           PERFORM 0100-MAIN THRU 0199-END.
+
+        TERMINATION.
+           CLOSE WINDOW S-WINDOW.
+           CLOSE STD-T-FILE, STD-FILE, CY-FILE, RC-FILE, RG-FILE.
+           EXIT PROGRAM.
+           STOP RUN.
+
+      *****************************************************************
+        0100-MAIN.
+
+           MOVE 101 TO S-CONTROL-ID.
+           MOVE 105 TO S-PRT-COL.
+           COPY '/v/cps/lib/std/print.prd'.
+           IF PRINT-DATANAME = SPACE
+              GO TO 0199-END.
+
+           OPEN OUTPUT PRINT-FILE.
+           IF S-STATUS-CHECK = 'Y'
+              GO TO 0199-END.
+
+           INITIALIZE STD-T-REC.
+           MOVE 'Y' TO S-RUN2.
+
+           EVALUATE LINK-SORT-TYPE
+            WHEN 1 START STD-T-FILE KEY >= STD-T-KEY INVALID
+                         MOVE 'N' TO S-RUN2
+                   END-START
+            WHEN 2 START STD-T-FILE KEY >= STD-T-ALT-KEY1 INVALID
+                         MOVE 'N' TO S-RUN2
+                   END-START
+            WHEN 3 START STD-T-FILE KEY >= STD-T-ALT-KEY2 INVALID
+                         MOVE 'N' TO S-RUN2
+                   END-START
+            WHEN 4 START STD-T-FILE KEY >= STD-T-ALT-KEY3 INVALID
+                         MOVE 'N' TO S-RUN2
+                   END-START
+           END-EVALUATE.
+
+           COPY '/v/cps/lib/std/s-thread.prd'.
+
+           WRITE PRINT-REC FROM S-INIT-STRING AFTER 0.
+           MOVE 'Y' TO S-FIRST-PRINT.
+           PERFORM PRT-CONTROL THRU PRT-CONTROL-END.
+
+           PERFORM 0200-PRT THRU 0299-PRT-END
+                   UNTIL S-RUN2 = 'N' OR THREAD-RETURN = 99.
+
+           IF THREAD-RETURN NOT = 99
+              PERFORM PRT-ENDING THRU PRT-ENDING-END.
+
+           CLOSE PRINT-FILE.
+
+           COPY '/v/cps/lib/std/e-thread.prd'.
+
+        0199-END. EXIT.
+
+      *****************************************************************
+        0200-PRT.
+
+           READ STD-T-FILE NEXT END
+                MOVE 'N' TO S-RUN2 GO TO 0299-PRT-END.
+
+           ADD 1 TO S-REC-COUNT.
+
+      * Initialize all detail lines
+      *     INITIALIZE PRT-DETAIL-LINE1, PRT-DETAIL-LINE2,
+      *               PRT-DETAIL-LINE3, PRT-DETAIL-LINE4,
+      *               PRT-DETAIL-LINE5.
+
+      * Line 1: No, AC#, Gender, Country
+           MOVE S-REC-COUNT   TO PRT-REC-COUNT.
+           MOVE STD-T-KEY     TO PRT-STD-KEY.
+
+           EVALUATE STD-T-GENDER
+            WHEN 'M' MOVE 'Male'   TO PRT-STD-GENDER
+            WHEN 'F' MOVE 'Female' TO PRT-STD-GENDER
+           END-EVALUATE.
+
+           MOVE STD-T-CY-KEY TO CY-KEY.
+           READ CY-FILE INVALID
+                INITIALIZE CY-DETAILS.
+           MOVE CY-NAME TO PRT-CY-NAME.
+
+      * Line 2: Name, DOB, Race
+           MOVE STD-T-NAME    TO PRT-STD-NAME.
+           MOVE STD-T-DOB-DMY TO PRT-STD-DOB-DMY.
+
+           MOVE STD-T-RC-KEY TO RC-KEY.
+           READ RC-FILE INVALID
+                INITIALIZE RC-DETAILS.
+           MOVE RC-NAME TO PRT-RC-NAME.
+
+      * Line 3: Address1, Age, Religion
+           MOVE STD-T-ADD1 TO PRT-STD-ADD1.
+           MOVE STD-T-AGE  TO PRT-STD-AGE.
+
+           MOVE STD-T-RG-KEY TO RG-KEY.
+           READ RG-FILE INVALID
+                INITIALIZE RG-DETAILS.
+           MOVE RG-NAME TO PRT-RG-NAME.
+
+      * Line 4: Address2, Height, Mobile
+           MOVE STD-T-ADD2   TO PRT-STD-ADD2.
+           MOVE STD-T-HEIGHT TO PRT-STD-HEIGHT.
+           MOVE STD-T-MOBILE TO PRT-STD-MOBILE.
+
+      * Line 5: Address3, Weight, Email
+           MOVE STD-T-ADD3   TO PRT-STD-ADD3.
+           MOVE STD-T-WEIGHT TO PRT-STD-WEIGHT.
+           MOVE STD-T-EMAIL  TO PRT-STD-EMAIL.
+
+      * Check page control
+           PERFORM PRT-CONTROL THRU PRT-CONTROL-END.
+
+      * Write the 5 detail lines
+           WRITE PRINT-REC FROM PRT-DETAIL-LINE1.
+           WRITE PRINT-REC FROM PRT-DETAIL-LINE2.
+           WRITE PRINT-REC FROM PRT-DETAIL-LINE3.
+           WRITE PRINT-REC FROM PRT-DETAIL-LINE4.
+           WRITE PRINT-REC FROM PRT-DETAIL-LINE5.
+           WRITE PRINT-REC FROM SPACE.
+
+        0299-PRT-END. EXIT.
+
+      ******************************************************************
+        PRT-CONTROL.
+
+           IF S-FIRST-PRINT = 'Y' OR LINAGE-COUNTER > 52
+              IF S-FIRST-PRINT = 'Y'
+                 MOVE 'N' TO S-FIRST-PRINT
+                 CALL   '/v/cps/lib/std/f-dmyhm' USING
+                        PRT-SYS-DMY, PRT-START-HHMM
+                 CANCEL '/v/cps/lib/std/f-dmyhm'
+                 MOVE 'Prestige Atlantic ' TO PRT-COMPNAME
+                 MOVE 0                    TO S-REC-COUNT
+                 MOVE 1                    TO S-PAGE-COUNT
+               ELSE
+                 ADD 1             TO S-PAGE-COUNT
+                 MOVE S-PAGE-COUNT TO PRT-PAGE-COUNT2
+                 WRITE PRINT-REC FROM PRT-NEXT-PAGE AFTER 2
+                 WRITE PRINT-REC FROM SPACE AFTER PAGE
+           END-IF
+           MOVE S-PAGE-COUNT TO PRT-PAGE-COUNT
+           WRITE PRINT-REC FROM PRT-HEADER
+           WRITE PRINT-REC FROM PRT-HEADER2
+           WRITE PRINT-REC FROM PRT-HEADER3 AFTER 2
+           WRITE PRINT-REC FROM PRT-LINE.
+
+        PRT-CONTROL-END. EXIT.
+
+      ******************************************************************
+        PRT-ENDING.
+
+           CALL   '/v/cps/lib/std/f-dmyhm' USING
+                  PRT-SYS-DMY, PRT-END-HHMM
+           CANCEL '/v/cps/lib/std/f-dmyhm'.
+
+           COMPUTE S-LINE = 62 - LINAGE-COUNTER.
+           WRITE PRINT-REC FROM PRT-END AFTER S-LINE.
+
+        PRT-ENDING-END. EXIT.
+
+      *****************************************************************
+           COPY '/v/cps/lib/std/errmsg.prd'.
+
+      * End of program

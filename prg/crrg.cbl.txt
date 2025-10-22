@@ -1,0 +1,183 @@
+ IDENTIFICATION DIVISION.
+        PROGRAM-ID.   CRRG.
+
+      * File Creation for Religion File
+      * AUTHOR    DATE   TYPE   ACC    NOTES
+      * MUNA     13/10/25       PA      SP2
+
+       ENVIRONMENT DIVISION.
+        INPUT-OUTPUT SECTION.
+         FILE-CONTROL.
+           COPY '/z/y25b31/sp2/lib/fd/fcrg'.
+
+       DATA DIVISION.
+        FILE SECTION.
+      $EFD FILE = rg
+          COPY '/z/y25b31/sp2/lib/fd/fdrg'.
+
+        WORKING-STORAGE SECTION.
+           COPY '/z/y25b31/sp2/lib/fd/dbrg'.
+
+        01 WS-OK                   PIC X(01) VALUE SPACES.
+        01 WS-COMMAND              PIC X ANY LENGTH.
+        01 S-WINDOW                PIC X(10).
+        01 S-WINDOW2               PIC X(10).
+        01 S-WINDOW3               PIC X(10).
+        01 S-PAUSE                 PIC X(01).
+        01 S-STATUS-CHECK          PIC X(01).
+        01 WS-STATUS               PIC 9(02) VALUE ZEROS.
+        01 S-ANSWER                PIC X(01) VALUE 'N'.
+           88 VALID-ANSWER         VALUE 'Y', 'y', 'N', 'n'.
+        01 FKEY                    PIC 9(03).
+           88 FKEY-ENTER           VALUE 013.
+           88 FKEY-ESCAPE          VALUE 027.
+
+        01 WS-CTREE-PATH           PIC X(100) VALUE SPACES.
+        01 WS-CONFIGURATION        PIC X(100) VALUE SPACES.
+
+        SCREEN SECTION.
+        01 SELECT-SCR.
+           03 LINE 02 COL 02 'File :'.
+           03 COL + 2 PIC X(40) FROM RG-DATANAME.
+           03 LINE 03 COL 02 'OK to proceed ? [ ] [Y/N]'.
+           03 LINE 03 COL 19 PIC X(01) USING S-ANSWER BELL UPPER.
+
+        01 SQLIZE-SCR.
+           03 BLANK SCREEN.
+           03 LINE 02 COL 02 'Sqlize File :'.
+           03 COL + 2 PIC X(40) FROM RG-DATANAME.
+           03 LINE 03 COL 02 'OK to proceed ? [ ] [Y/N]'.
+           03 LINE 03 COL 19 PIC X(01) USING S-ANSWER BELL UPPER.
+
+        01 PAUSE-SCR.
+           03 LINE 02 COL 01 'Press any key to continue...'.
+           03 COL + 2 PIC X(01) USING S-PAUSE AUTO OFF BELL.
+
+        01 PAUSE-SCR2.
+           03 LINE 02 COL 01 'Sqlize not successful. Press any key to ex
+      -       'it ...'.
+           03 COL + 2 PIC X(01) USING S-PAUSE AUTO OFF BELL.
+
+      ******************************************************************
+       PROCEDURE DIVISION.
+        DECLARATIVES.
+
+         RG-FILE-HANDLING SECTION.
+            USE AFTER STANDARD ERROR PROCEDURE ON RG-FILE.
+            CALL   '/v/cps/lib/std/f-status' USING RG-DATA.
+            CANCEL '/v/cps/lib/std/f-status'.
+            MOVE 'Y' TO S-STATUS-CHECK.
+
+        END DECLARATIVES.
+
+      ******************************************************************
+        BEGIN.
+
+           DISPLAY FLOATING WINDOW LINES 8 SIZE 60
+           CELL SIZE = ENTRY-FIELD FONT SEPARATE
+           TITLE 'Religion File Creation'
+           POP-UP S-WINDOW.
+
+        ACCEPT-RTN.
+
+           DISPLAY SELECT-SCR.
+           ACCEPT SELECT-SCR.
+           ACCEPT FKEY FROM ESCAPE KEY.
+
+           IF FKEY-ESCAPE GO TO TERMINATION.
+           IF NOT (FKEY-ENTER AND VALID-ANSWER) GO TO ACCEPT-RTN.
+
+           IF S-ANSWER NOT = 'Y'
+              GO TO TERMINATION.
+
+           OPEN OUTPUT RG-FILE.
+           CLOSE RG-FILE.
+           IF S-STATUS-CHECK = 'Y' GO TO TERMINATION.
+
+      *Call to change Mode & Group.
+           DISPLAY WINDOW AT 0101 SIZE 80 LINES 24
+           POP-UP S-WINDOW2.
+           DISPLAY OMITTED AT 1516.
+
+           MOVE 'N' TO WS-OK.
+
+           STRING 'chmod 775 ', RG-DATANAME, '.dat'
+                  DELIMITED BY '  ' INTO WS-COMMAND.
+           CALL   'SYSTEM' USING WS-COMMAND GIVING WS-STATUS.
+           CANCEL 'SYSTEM'.
+           IF WS-STATUS NOT = ZEROS
+              DISPLAY PAUSE-SCR
+              ACCEPT  PAUSE-SCR
+              GO TO BEGIN-SUB.
+
+           STRING 'chgrp cps ', RG-DATANAME, '.dat'
+                  DELIMITED BY '  ' INTO WS-COMMAND.
+           CALL   'SYSTEM' USING WS-COMMAND GIVING WS-STATUS.
+           CANCEL 'SYSTEM'.
+           IF WS-STATUS NOT = ZEROS
+              DISPLAY PAUSE-SCR
+              ACCEPT  PAUSE-SCR
+              GO TO BEGIN-SUB.
+
+           STRING 'chmod 775 ', RG-DATANAME, '.idx'
+                  DELIMITED BY '  ' INTO WS-COMMAND.
+           CALL   'SYSTEM' USING WS-COMMAND GIVING WS-STATUS.
+           CANCEL 'SYSTEM'.
+           IF WS-STATUS NOT = ZEROS
+              DISPLAY PAUSE-SCR
+              ACCEPT  PAUSE-SCR
+              GO TO BEGIN-SUB.
+
+           STRING 'chgrp cps ', RG-DATANAME, '.idx'
+                  DELIMITED BY '  ' INTO WS-COMMAND.
+           CALL   'SYSTEM' USING WS-COMMAND GIVING WS-STATUS.
+           CANCEL 'SYSTEM'.
+           IF WS-STATUS NOT = ZEROS
+              DISPLAY PAUSE-SCR
+              ACCEPT  PAUSE-SCR
+              GO TO BEGIN-SUB.
+
+           MOVE 'Y' TO WS-OK.
+
+        BEGIN-SUB.
+
+           CLOSE WINDOW S-WINDOW2.
+
+           IF WS-OK NOT = 'Y'
+              GO TO TERMINATION.
+
+           DESTROY SELECT-SCR.
+           INITIALIZE S-ANSWER.
+
+        BEGIN-SUB2.
+
+           DISPLAY SQLIZE-SCR.
+           ACCEPT  SQLIZE-SCR.
+           ACCEPT FKEY FROM ESCAPE KEY.
+
+           IF FKEY-ESCAPE GO TO TERMINATION.
+           IF NOT (FKEY-ENTER AND VALID-ANSWER) GO TO BEGIN-SUB2.
+
+           IF S-ANSWER NOT = 'Y'
+              GO TO TERMINATION.
+
+           ACCEPT WS-CTREE-PATH FROM ENVIRONMENT 'PA-CTREE-PATH'.
+           ACCEPT WS-CONFIGURATION FROM ENVIRONMENT 'PA-SQL-CONFIG'.
+
+           INITIALIZE WS-STATUS.
+           STRING WS-CTREE-PATH, '/ctutil -c ', WS-CONFIGURATION,
+                  ' -sqlize ', RG-DATANAME,
+                  ' /z/y25b31/sp2/db/rg.iss ctreeSQL31 -conv=A'
+                  DELIMITED BY '  ' INTO WS-COMMAND.
+           CALL   'SYSTEM' USING WS-COMMAND GIVING WS-STATUS.
+           CANCEL 'SYSTEM'.
+           IF WS-STATUS NOT = ZEROS
+              DISPLAY PAUSE-SCR2
+              ACCEPT  PAUSE-SCR2.
+
+        TERMINATION.
+           CLOSE WINDOW S-WINDOW.
+           EXIT PROGRAM.
+           STOP RUN.
+      ***************************************************************
+      *End of program.
