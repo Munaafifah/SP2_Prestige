@@ -340,15 +340,13 @@ IDENTIFICATION DIVISION.
                MOVE 601    TO S-CONTROL-ID
                GO TO 0100-MAIN.
 
-      * REMOVED THE GENDER VALIDATION - Allow blank for ALL genders
-      * IF WS-GENDER = ZEROES
-      *    MOVE 100020 TO S-ERROR-CODE
-      *    MOVE 201    TO S-CONTROL-ID
-      *    GO TO 0100-MAIN.
+           IF WS-GENDER = ZEROES
+             MOVE 100020 TO S-ERROR-CODE
+             MOVE 201    TO S-CONTROL-ID
+             GO TO 0100-MAIN.
 
-      * Prepare LINK-MISC for PSSTD - DO NOT modify WS fields!
+      * Call PSSTD to process and create temporary file
            MOVE 101 TO S-CONTROL-ID.
-
            MOVE WS-S-STD-KEY  TO LINK-S-STD-KEY.
            MOVE WS-E-STD-KEY  TO LINK-E-STD-KEY.
            MOVE WS-GENDER     TO LINK-GENDER.
@@ -387,7 +385,7 @@ IDENTIFICATION DIVISION.
            IF LINK-E-RG-KEY = SPACES
               MOVE HIGH-VALUE TO LINK-E-RG-KEY.
 
-      * Call PSSTD to process and create temporary file
+
            CALL   '/z/y25b31/sp2/prg/psstd' USING
                   WS-S-STD-KEY,
                   LINK-MISC,
