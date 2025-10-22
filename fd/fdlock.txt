@@ -1,0 +1,9 @@
+ FD LOCK-FILE
+           LABEL RECORD STANDARD.
+
+      * FDLOCK - Lock File for Temp ID Generation
+      * LOCK-KEY : Move SPACE when creating this record
+
+        01 LOCK-REC.
+           03 LOCK-KEY      PIC X(01).
+           03 LOCK-PADDING  PIC X(30).
