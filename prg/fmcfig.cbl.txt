@@ -102,35 +102,10 @@ IDENTIFICATION DIVISION.
            DESTROY SELECT-SCR.
 
         0199-END. EXIT.
-
-      ******************************************************************
-        GET-NEXT.
-
-           START CFIG-FILE KEY > CFIG-KEY INVALID
-                 MOVE 100010 TO S-ERROR-CODE
-                 NOT INVALID
-                     READ CFIG-FILE NEXT END
-                          MOVE 100010 TO S-ERROR-CODE
-                     END-READ.
-
-        GET-NEXT-END. EXIT.
-
-      ******************************************************************
-        GET-PREV.
-
-           START CFIG-FILE KEY < CFIG-KEY INVALID
-                 MOVE 100005 TO S-ERROR-CODE
-                 NOT INVALID
-                     READ CFIG-FILE BACKWARD END
-                          MOVE 100005 TO S-ERROR-CODE
-                     END-READ.
-
-        GET-PREV-END. EXIT.
-
       ******************************************************************
         FKEY-RTN.
 
-           MOVE '1yy456y89012y4567890' TO S-ACTIVE-FKEY
+           MOVE '123456y89012y4567890' TO S-ACTIVE-FKEY
 
            CALL   '/v/cps/lib/std/x-fkey' USING
                   S-ACTIVE-FKEY, S-TOOLBAR, S-BUTTON.
@@ -144,3 +119,4 @@ IDENTIFICATION DIVISION.
            COPY '/v/cps/lib/std/errmsg.prd'.
 
       * End of program
+
